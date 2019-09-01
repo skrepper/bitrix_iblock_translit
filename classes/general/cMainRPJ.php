@@ -54,6 +54,39 @@ function imTranslite($str){
  } 
 
 
+//агент, который запускается в соответствии с расписанием, заданным в install.php 
+function agentDeleteOldRecs() {
+	global $DB;
+
+
+	if(!CModule::IncludeModule("iblock"))
+		return;
+
+	$rsEl = CIBlockElement::GetList(
+              array("ID" => "ASC"), 
+              array("IBLOCK_ID" => COption::GetOptionString(self::$MODULE_ID, "FORM_DEFAULT_IBLOCK"),
+                    ">DATE_CREATE" => date($DB->DateFormatToPHP(FORMAT_DATETIME), time()-86400*1) ///вставить время в днях
+                ), 
+              false
+	      //, 
+              //array("nTopCount" => 100)
+          );
+	while ($arEl = $rsEl->Fetch())
+	{
+		/*
+		 * do something
+		 */
+		//$lastID = intval($arEl["ID"]);
+		$element = new CIBlockElement;
+		$res = $element->Update($arEl[ID], array("ACTIVE" => "N"));
+		//cMainRPJ::log_array(array("DATE_CREATE"=>$arEL["DATE_CREATE"]));
+	}
+
+
+	return "agentDeleteOldRecs();";
+}
+
+
 
 }
 

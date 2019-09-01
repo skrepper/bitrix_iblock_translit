@@ -27,6 +27,19 @@ Class translit_sym_code extends CModule
     function DoInstall()
     {
         global $DOCUMENT_ROOT, $APPLICATION;
+
+
+
+CAgent::AddAgent(
+    "cMainRPJ::agentDeleteOldRecs();", // имя функции
+    "translit_sym_code",                          // идентификатор модуля
+    "N",                                  // агент не критичен к кол-ву запусков
+    86400,                                // интервал запуска - 1 сутки
+    "01.09.2019 21:56:00",                // дата первой проверки на запуск
+    "Y",                                  // агент активен
+    "01.09.2019 21:56:00",                // дата первого запуска
+    30);
+
 //Аналог функции в новом ядре: Bitrix\Main\EventManager::registerEventHandler .
         // Install events
         RegisterModuleDependences("iblock","OnBeforeIBlockElementAdd",$this->MODULE_ID,"cMainRPJ","OnBeforeIBlockElementAddHandler");
@@ -38,6 +51,14 @@ Class translit_sym_code extends CModule
     function DoUninstall()
     {
         global $DOCUMENT_ROOT, $APPLICATION;
+
+
+CAgent::RemoveAgent(
+    "cMainRPJ::agentDeleteOldRecs();", // имя функции
+    "translit_sym_code");                          // идентификатор модуля
+
+
+
         UnRegisterModuleDependences("iblock","OnBeforeIBlockElementAdd",$this->MODULE_ID,"cMainRPJ","OnBeforeIBlockElementAddHandler");
         UnRegisterModule($this->MODULE_ID);
         $APPLICATION->IncludeAdminFile("Деинсталляция модуля ".$this->MODULE_ID, $DOCUMENT_ROOT."/bitrix/modules/".$this->MODULE_ID."/install/unstep.php");
