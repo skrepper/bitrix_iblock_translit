@@ -4,11 +4,8 @@
 $module_id = "translit_sym_code";
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
 $RIGHT = $APPLICATION->GetGroupRight($module_id);
+
 if($RIGHT >= "R") :
-///// Читаем данные и формируем для вывода
-$arAllOptions = Array(
-    array("WE_ARE_CLOSED_TEXT", "Текст о том, что всё закрыто.", array("text"), "Куда Вы прёте, у нас закрыто!"),
-);
 
 $aTabs = array(
     array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB_SET"), "ICON" => "perfmon_settings", "TITLE" => GetMessage("MAIN_TAB_TITLE_SET")),
@@ -24,105 +21,70 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RI
     require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
     if(strlen($RestoreDefaults)>0) {
-        COption::RemoveOption("WE_ARE_CLOSED_TEXT");
 	COption::RemoveOption("FORM_DEFAULT_IBLOCK");
 	}	
     else
     {
-        foreach($arAllOptions as $arOption)
+     /*   foreach($arAllOptions as $arOption)
         {
             $name=$arOption[0];
             $val=$_REQUEST[$name];
             // @todo: проверка безопасности должна быть тут!
             COption::SetOptionString($module_id, $name, $val);
-        }
+        } */
 	COption::SetOptionString($module_id, "FORM_DEFAULT_IBLOCK", $_REQUEST["CHOICE"]);	
     }
-
-
-    ob_start();
-    $Update = $Update.$Apply;
-//    require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");
-    ob_end_clean();
 }
 ?>
 
 
 <form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=urlencode($module_id)?>&amp;lang=<?=LANGUAGE_ID?>">
     <?
-    $tabControl->Begin();
-    $tabControl->BeginNextTab();
-    $arNotes = array();
-    foreach($arAllOptions as $arOption):
-        $val = COption::GetOptionString($module_id, $arOption[0], $arOption[3]);
-        $type = $arOption[2];
-        if(isset($arOption[4]))
-            $arNotes[] = $arOption[4];
-        ?>
-        <tr>
-            <td width="40%" nowrap <?if($type[0]=="textarea") echo 'class="adm-detail-valign-top"'?>>
-                <?if(isset($arOption[4])):?>
-                    <span class="required"><sup><?echo count($arNotes)?></sup></span>
-                <?endif;?>
-                <label for="<?echo htmlspecialcharsbx($arOption[0])?>"><?echo $arOption[1]?>:</label>
-            <td width="60%">
-                <?if($type[0]=="checkbox"):?>
-                    <input type="checkbox" name="<?echo htmlspecialcharsbx($arOption[0])?>" id="<?echo htmlspecialcharsbx($arOption[0])?>" value="Y"<?if($val=="Y")echo" checked";?>>
-                <?elseif($type[0]=="text"):?>
-                    <input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($arOption[0])?>" id="<?echo htmlspecialcharsbx($arOption[0])?>"><?if($arOption[0] == "slow_sql_time") echo GetMessage("PERFMON_OPTIONS_SLOW_SQL_TIME_SEC")?>
-                <?elseif($type[0]=="textarea"):?>
-                    <textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($arOption[0])?>" id="<?echo htmlspecialcharsbx($arOption[0])?>"><?echo htmlspecialcharsbx($val)?></textarea>
-                <?endif?>
-            </td>
-        </tr>
-    <?endforeach?>
+        $tabControl->Begin();
+        $tabControl->BeginNextTab();
+        $arNotes = array();
 
-<?
-
-if(!CModule::IncludeModule("iblock"))
-	return;
+	if(!CModule::IncludeModule("iblock"))
+		return;
 
 
-$resCIBlock = CIBlock::GetList(
-   Array(), 
-   Array(
-     // 'TYPE'=>'catalog', 
-     // 'SITE_ID'=>SITE_ID, 
-      'ACTIVE'=>'Y', 
-      "CNT_ACTIVE"=>"Y", 
-      "!CODE"=>'my_products'
-   ), true
-);
+	$resCIBlock = CIBlock::GetList(
+   	Array(), 
+   	Array(
+     	// 'TYPE'=>'catalog', 
+     	// 'SITE_ID'=>SITE_ID, 
+      	'ACTIVE'=>'Y', 
+      	"CNT_ACTIVE"=>"Y", 
+      	"!CODE"=>'my_products'
+   	), true
+	);
 
 
-$arrRef = array();
-$arrRef_id = array();
+	$arrRef = array();
+	$arrRef_id = array();
 
-while($ar_res = $resCIBlock->Fetch())
-{
-   $arrRef[]=$ar_res['NAME'];
-   $arrRef_id[]=$ar_res['ID'];
+	while($ar_res = $resCIBlock->Fetch())
+	{
+   		$arrRef[]=$ar_res['NAME'];
+   		$arrRef_id[]=$ar_res['ID'];
 
-//print_r($ar_res);
+		//print_r($ar_res);
 
-}
+	}
 
-$arrCIBlock=array(
-    "REFERENCE" => // массив заголовков элементов
-        $arrRef,
-    "REFERENCE_ID" => // массив значений элементов
-        $arrRef_id
-    ); 
-
-
-$perm = COption::GetOptionString($module_id, "FORM_DEFAULT_IBLOCK");
-
-echo "perm=".$perm."<br>";
+	$arrCIBlock=array(
+    	"REFERENCE" => // массив заголовков элементов
+        	$arrRef,
+    	"REFERENCE_ID" => // массив значений элементов
+        	$arrRef_id
+    	); 
 
 
-echo SelectBoxFromArray("CHOICE", $arrCIBlock, $perm, "", "")
+	$iblock_id = COption::GetOptionString($module_id, "FORM_DEFAULT_IBLOCK");
+        //echo "perm=".$perm."<br>";
+	echo SelectBoxFromArray("CHOICE", $arrCIBlock, $iblock_id, "", "")
 
-?>
+    ?>
 
     <?$tabControl->Buttons();?>
     <input <?if ($RIGHT<"W") echo "disabled" ?> type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">

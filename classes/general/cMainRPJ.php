@@ -16,7 +16,7 @@ function OnBeforeIBlockElementAddHandler(&$arFields)
 	if($iblock_id==$arFields["IBLOCK_ID"])
       	  $arFields["CODE"] = cMainRPJ::imTranslite($arFields["NAME"]) /*."_".date('dmY')*/; 
 
-	//$arFields[]=array("perm"=>$perm);
+	//$arFields[]=array("iblock_id"=>$iblock_id);
       	//cMainRPJ::log_array($arFields); // убрать после отладки 
       	return; 
    } 
