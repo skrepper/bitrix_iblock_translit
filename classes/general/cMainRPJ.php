@@ -65,7 +65,7 @@ function agentDeleteOldRecs() {
 	$rsEl = CIBlockElement::GetList(
               array("ID" => "ASC"), 
               array("IBLOCK_ID" => COption::GetOptionString(self::$MODULE_ID, "FORM_DEFAULT_IBLOCK"),
-                    ">DATE_CREATE" => date($DB->DateFormatToPHP(FORMAT_DATETIME), time()-86400*1) ///вставить время в днях
+                    ">DATE_CREATE" => date($DB->DateFormatToPHP(FORMAT_DATETIME), time()-86400*intval(COption::GetOptionString(self::$MODULE_ID, "FORM_DEFAULT_DAYS"))) ///вставить время в днях
                 ), 
               false
 	      //, 

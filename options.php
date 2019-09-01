@@ -22,6 +22,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RI
 
     if(strlen($RestoreDefaults)>0) {
 	COption::RemoveOption("FORM_DEFAULT_IBLOCK");
+	COption::RemoveOption("FORM_DEFAULT_DAYS");
 	}	
     else
     {
@@ -32,7 +33,9 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RI
             // @todo: проверка безопасности должна быть тут!
             COption::SetOptionString($module_id, $name, $val);
         } */
+	COption::SetOptionString($module_id, "FORM_DEFAULT_DAYS", $_REQUEST["SENILITY"]);
 	COption::SetOptionString($module_id, "FORM_DEFAULT_IBLOCK", $_REQUEST["CHOICE"]);	
+        
     }
 }
 ?>
@@ -60,7 +63,8 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RI
 	);
 
 
-	$arrRef = array();
+	//выбрать список инфоблоков
+        $arrRef = array();
 	$arrRef_id = array();
 
 	while($ar_res = $resCIBlock->Fetch())
@@ -82,7 +86,11 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RI
 
 	$iblock_id = COption::GetOptionString($module_id, "FORM_DEFAULT_IBLOCK");
         //echo "perm=".$perm."<br>";
-	echo SelectBoxFromArray("CHOICE", $arrCIBlock, $iblock_id, "", "")
+	echo "<tr><td>Выберите тип инфоблока:</td><td>".SelectBoxFromArray("CHOICE", $arrCIBlock, $iblock_id, "", "")."</td></tr>";
+        echo "<tr><td>Количество дней декативации:</td><td><input type='text' name='SENILITY' 
+              value='".COption::GetOptionString($module_id, "FORM_DEFAULT_DAYS")
+              ."' id='".COption::GetOptionString($module_id, "FORM_DEFAULT_DAYS")
+              ."'></td></tr>";
 
     ?>
 
